@@ -1,0 +1,13 @@
+from flask import Flask, render_template
+import requests
+import pandas as pd
+from io import StringIO, BytesIO
+import threading
+import schedule
+import time
+from datetime import datetime
+requests~=2.31.0
+pandas~=2.2.0
+schedule~=1.2.1
+django-scheduler~=0.10.1
+flask~=3.0.2

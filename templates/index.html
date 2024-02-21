@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Table</title>
+    <style>
+          /* Add CSS styles for table */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <table id="data-table">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Load Origin</th>
+                <th>Destination</th>
+                <th>Date</th>
+                <th>Notes</th>
+                <th>Miles</th>
+                <th>Rate</th>
+
+                <!-- Add more columns if needed -->
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data[1:] %}
+            <tr>
+                <td>{{ row['Type'] }}</td>
+                <td>{{ row['Load Origin'] }}</td>
+                <td>{{ row['Destination'] }}</td>
+                <td>{{ row['Date'] }}</td>
+                <td>{{ row['Notes'] }}</td>
+                <td>{{ row['Miles'] }}</td>
+                <td>{{ row['Rate'] }}</td>
+                <td>{{ row['Material'] }}</td>
+                <!-- Add more columns if needed -->
+                <td><button class="email-btn" data-row="{{ row }}">Email</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        // JavaScript for email button click event
+        const emailButtons = document.querySelectorAll('.email-btn');
+        emailButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const row = button.closest('tr');
+                const email = findEmail(row); // Find nearest email above the current row
+                const data = {
+                    Type: row.querySelector('td:nth-child(1)').textContent,
+                    LoadOrigin: row.querySelector('td:nth-child(2)').textContent,
+                    Destination: row.querySelector('td:nth-child(3)').textContent,
+                    Date: row.querySelector('td:nth-child(4)').textContent,
+                    Notes: row.querySelector('td:nth-child(5)').textContent,
+                    Miles: row.querySelector('td:nth-child(6)').textContent,
+                    Rate: row.querySelector('td:nth-child(7)').textContent,
+                    Material: row.querySelector('td:nth-child(8)').textContent
+                };
+                // Send email using email and data
+                sendEmail(email, data);
+            });
+        });
+
+        // Function to find email address in "Destination" column of rows above
+        function findEmail(row) {
+            let currentRow = row.previousElementSibling;
+            while (currentRow) {
+                const destinationCell = currentRow.querySelector('td:nth-child(3)'); // Adjust the column index as needed
+                const emailPattern = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+                const matches = destinationCell.textContent.match(emailPattern);
+                if (matches && matches.length > 0) {
+                    // If multiple emails are found, return the first one
+                    return matches[0];
+                }
+                currentRow = currentRow.previousElementSibling;
+            }
+            return ''; // Return empty string if email not found
+        }
+
+        // Function to send email
+        function sendEmail(email, data) {
+            const subject = `${data.LoadOrigin} to ${data.Destination} ${data.Date}`; // Concatenate Load Origin, Destination, and Date
+            const body = `Hello, Is this load still available?\n\nLoad Origin: ${data.LoadOrigin}\nDestination: ${data.Destination}\nDate: ${data.Date}\nRate: $${data.Rate}`;
+            const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            // Open default email client with pre-populated email fields
+            window.location.href = mailtoLink;
+        }
+    </script>
+</body>
+</html>
